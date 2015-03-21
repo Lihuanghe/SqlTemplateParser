@@ -19,8 +19,13 @@
 > @{arraysParameter} : 数组参数替换。如果数据不为空，且长度大于0 ，则替换为?,?,? .用于 sql的in , not in 语句，如： where id in ('Nouse',@{Ids}) .
 
 > $[optParam: statment ] : 支持可选语句，如果参数optParam，值不为空，则解析[]内的statment,不则移除整条statment。用于传入可选参数：
+
+```sql
 select * from shops where 1=1 $[shopName: and  shop_name = ${shopName} ] and status = 1 
+```
 
 > @[optArrays: statment ] : 与$[]含义相同，但参数为数组，或者集合类型。
-select * from shops where 1=1 @[Ids: and  id in ('Nouse',@{Ids})  ] and status = 1
 
+```sql
+select * from shops where 1=1 @[Ids: and  id in ('Nouse',@{Ids})  ] and status = 1
+```
