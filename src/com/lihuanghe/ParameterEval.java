@@ -31,7 +31,7 @@ public class ParameterEval {
 		//System.out.println(jsCode);
 		CompiledScript compilescript = engine.compile(jsCode);
 		Bindings bd = engine.createBindings();
-		bd.putAll(map);
+		bd.put(paramName,map.get(paramName));
 		bd.put("DateFormat",new DateFormatUtils());
 		Object obj = compilescript.eval(bd);
 		return obj;
