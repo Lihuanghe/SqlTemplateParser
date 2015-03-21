@@ -199,16 +199,24 @@ public class SqlTemplateParserTest {
 	public void testJscode() throws SqlParseException, IOException
 	{
 		Date d = new Date();
-		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} #{abc|DateFormat.format(abc,'yyyy-MM-dd')}end ";
+		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("abc", d);
+		map.put("b3", new String[]{"2","3","4"});
+		List<String> tmp = new ArrayList<String>();
+		tmp.addAll(Arrays.asList(new String[]{"2","3","4"}));
+		map.put("b2", tmp);
+		
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		System.out.println(pstsSql);
+		System.out.println(Arrays.toString(param.toArray()));
+		
 		String str = DateFormatUtils.format(d,"yyyy-MM-dd");
-		String expect = "begin ? "+str+"end ";
+		String expect = "begin ? (?,?) "+str+" (?,?,?,?,?,?) end ";
 		Assert.assertEquals(expect, pstsSql);
-		Assert.assertEquals(1, param.size());
-		Assert.assertArrayEquals(new String[]{str }, param.toArray());
+		Assert.assertEquals(9, param.size());
+		Assert.assertArrayEquals(new String[]{str,"hello","2*3*4" ,"2","3","4","5","6","7"}, param.toArray());
 	}
 	
 	//≤‚ ‘js÷¥–––‘ƒ‹ 
