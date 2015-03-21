@@ -2,6 +2,7 @@ package com.lihuanghe;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +18,18 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testsql() throws SqlParseException, IOException
 	{
-		String sql = "select * from shops where 1=1 @[Ids: and  id in ('Nouse',@{Ids})  ] and status = 1";
+		String sql = "select * from shops \nwhere 1=1 @[Ids: \nand  id in ('Nouse',@{Ids})  ] \nand status = 1";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("Ids", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "select * from shops where 1=1  and  id in ('Nouse',?,?,?)   and status = 1";
+		String expect = "select * from shops \nwhere 1=1  \nand  id in ('Nouse',?,?,?)   \nand status = 1";
+		System.out.println(pstsSql);
+		System.out.println(Arrays.toString(param.toArray()));
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(3, param.size());
 		Assert.assertArrayEquals(new String[]{"2" ,"3" ,"4" }, param.toArray());
+		
 	}
 	@Test
 	public void testall() throws SqlParseException, IOException

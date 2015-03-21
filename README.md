@@ -1,8 +1,8 @@
-##一个简单的sql参数替换引擎，支持动态参数名，动态表名
+### 一个简单的sql参数替换引擎，支持动态参数名，动态表名
 
-## 主要用在自动报表工具（引擎）上。可以支持sql设置参数
+### 主要用在自动报表工具（引擎）上。可以支持sql设置参数
 
-## 用法
+### 用法: 
 
 
 1. 表名，参数名拼接
@@ -11,7 +11,7 @@
 
 2. 参数替换
 
-> ${parameter} ： 替换为 ? ,同时设置对应位置的参数对象，供prepareStatement使用
+> ${parameter} ： 替换为 ? ,同时设置对应位置的参数对象，供prepareStatement使用，参数目前只支持String类型
 
 > ${parameter#{pName}} : 如果参数pName值为5,引擎首先解析成${parameter5},然后再取值。
 如果有一个参数parameter5值为"hello world"，则替换为?,且对应位置的参数值设置为"hello world"
@@ -27,5 +27,11 @@ select * from shops where 1=1 $[shopName: and  shop_name = ${shopName} ] and sta
 > @[optArrays: statment ] : 与$[]含义相同，但参数为数组，或者集合类型。
 
 ```sql
-select * from shops where 1=1 @[Ids: and  id in ('Nouse',@{Ids})  ] and status = 1
+select * from shops 
+where 1=1 
+@[Ids: 
+and id in ( 'Nouse',@{Ids} ) 
+and beginDate = ${datetime}
+ ] 
+and status = 1
 ```
