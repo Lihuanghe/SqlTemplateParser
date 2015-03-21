@@ -3,10 +3,12 @@ package com.lihuanghe;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,14 +20,16 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testsql() throws SqlParseException, IOException
 	{
-		String sql = "select * from shops \nwhere 1=1 @[Ids: \nand  id in ('Nouse',@{Ids})  ] \nand status = 1";
+		String sql = "select * from shops_#{month} \nwhere 1=1 @[Ids: \nand  id in ('Nouse',@{Ids})  ] \nand status = 1";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("Ids", new String[]{"2","3","4"});
+		map.put("month", "201503");
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "select * from shops \nwhere 1=1  \nand  id in ('Nouse',?,?,?)   \nand status = 1";
-		System.out.println(pstsSql);
+		String expect = "select * from shops_201503 \nwhere 1=1  \nand  id in ('Nouse',?,?,?)   \nand status = 1";
 		System.out.println(Arrays.toString(param.toArray()));
+		System.out.println(expect);
+		
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(3, param.size());
 		Assert.assertArrayEquals(new String[]{"2" ,"3" ,"4" }, param.toArray());
@@ -34,18 +38,55 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testall() throws SqlParseException, IOException
 	{
-		String sql = "begin ${p1},@{p2},p#{p1},$[p1: midle1:${p1}],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end";
+		String sql = "begin ${p1},@{p2},p#{p1},$[p1: midle1:${p1}],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end$";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,?,?,?,p1, midle1:?,\n ,midle3:?,?,?,,${,\\a,\\ end";
+		String expect = "begin ?,?,?,?,p1, midle1:?,\n ,midle3:?,?,?,,${,\\a,\\ end$";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	
+	//末尾的转义异常
+	@Test
+	public void testlost4() 
+	{
+		String sql = "begin  end\\";
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<String> param = new ArrayList<String>();
+		try {
+			String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+			Assert.assertTrue(false);
+		} catch (SqlParseException e) {
+			Assert.assertTrue(true);
+			e.printStackTrace();
+		} catch (IOException e) {
+			Assert.assertTrue(false);
+			e.printStackTrace();
+		}
+	}
+	
+	//末尾缺少符号
+	@Test
+	public void testlost5() 
+	{
+		String sql = "begin  $[lost5: asff end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<String> param = new ArrayList<String>();
+		try {
+			String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+			Assert.assertTrue(false);
+		} catch (SqlParseException e) {
+			Assert.assertTrue(true);
+			e.printStackTrace();
+		} catch (IOException e) {
+			Assert.assertTrue(false);
+			e.printStackTrace();
+		}
+	}
 	//参数缺少大括号
 	@Test
 	public void testlost1() throws SqlParseException, IOException
@@ -56,10 +97,10 @@ public class SqlTemplateParserTest {
 		map.put("p2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ $abc #XY end";
+		String expect = "begin ,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ $abc #XY end";
 		Assert.assertEquals(expect, pstsSql);
-		Assert.assertEquals(5, param.size());
-		Assert.assertArrayEquals(new String[]{"","1" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(4, param.size());
+		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	
 	//参数缺少大括号
@@ -86,7 +127,7 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testparamNameisNull() throws IOException 
 	{
-		String sql = "begin ${#{p3}} ${#{p2}} end";
+		String sql = "begin ${#{p1}} ${#{p2}} end";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", "");
@@ -151,5 +192,33 @@ public class SqlTemplateParserTest {
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
+	}
+	
+	//测试js执行
+	@Test
+	public void testJscode() throws SqlParseException, IOException
+	{
+		Date d = new Date();
+		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} end ";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("abc", d);
+		List<String> param = new ArrayList<String>();
+		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		String expect = "begin ? end ";
+		Assert.assertEquals(expect, pstsSql);
+		Assert.assertEquals(1, param.size());
+		Assert.assertArrayEquals(new String[]{DateFormatUtils.format(d,"yyyy-MM-dd") }, param.toArray());
+	}
+	
+	//测试js执行性能 
+	@Test
+	public void testJsperf() throws SqlParseException, IOException
+	{
+		Date st = new Date();
+		int i = 0;
+		for(;i< 1000;i++)testJscode();
+		Date ed = new Date();
+		System.out.println(ed.getTime() - st.getTime());
+		Assert.assertTrue("js执行过慢，单次执行大于10ms",(ed.getTime() - st.getTime())<10000);
 	}
 }
