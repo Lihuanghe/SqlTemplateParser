@@ -334,34 +334,34 @@ public class SqlTemplateParser {
 
 	private String readUntil(int c,boolean isparseParamName) throws IOException,SqlParseException {
 		curChar = readandsavepre();
-		StringBuilder optparam = new StringBuilder();
+		StringBuilder strbuf = new StringBuilder();
 		while (curChar != -1 && curChar != c) {
 			
 			if(isparseParamName)
 			{
 				switch (curChar) {
 				case '\\':
-					optparam.append(escape());
+					strbuf.append(escape());
 					break;
 				case '#':
-					optparam.append(parseConcat());
+					strbuf.append(parseConcat());
 					break;
 				default:
-					optparam.append((char) curChar);
+					strbuf.append((char) curChar);
 				}
 			}else{
 				//对于要丢弃的字符，不再解析
-				optparam.append((char) curChar);
+				strbuf.append((char) curChar);
 			}
 			
 			curChar = readandsavepre();
 		}
 		if (curChar == -1) {
 			
-			throw new SqlParseException(optparam.append(
-					" :position["+ (sqlpos-optparam.length())+"]\t expect '" + (char) c + "'").toString());
+			throw new SqlParseException(strbuf.append(
+					" :position["+ (sqlpos-strbuf.length())+"]\t expect '" + (char) c + "'").toString());
 		} else {
-			return optparam.toString();
+			return strbuf.toString();
 		}
 	}
 
