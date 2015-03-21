@@ -199,15 +199,16 @@ public class SqlTemplateParserTest {
 	public void testJscode() throws SqlParseException, IOException
 	{
 		Date d = new Date();
-		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} end ";
+		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} #{abc|DateFormat.format(abc,'yyyy-MM-dd')}end ";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("abc", d);
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ? end ";
+		String str = DateFormatUtils.format(d,"yyyy-MM-dd");
+		String expect = "begin ? "+str+"end ";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(1, param.size());
-		Assert.assertArrayEquals(new String[]{DateFormatUtils.format(d,"yyyy-MM-dd") }, param.toArray());
+		Assert.assertArrayEquals(new String[]{str }, param.toArray());
 	}
 	
 	//测试js执行性能 
@@ -216,7 +217,14 @@ public class SqlTemplateParserTest {
 	{
 		Date st = new Date();
 		int i = 0;
-		for(;i< 1000;i++)testJscode();
+		Date d = new Date();
+		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} #{abc|DateFormat.format(abc,'yyyy-MM-dd')}end ";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("abc", d);
+		List<String> param = new ArrayList<String>();
+		for(;i< 1000;i++){
+			SqlTemplateParser.parseString(sql, map, param);
+		};
 		Date ed = new Date();
 		System.out.println(ed.getTime() - st.getTime());
 		Assert.assertTrue("js执行过慢，单次执行大于10ms",(ed.getTime() - st.getTime())<10000);
