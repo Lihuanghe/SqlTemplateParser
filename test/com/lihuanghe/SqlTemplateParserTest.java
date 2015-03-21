@@ -45,33 +45,18 @@ public class SqlTemplateParserTest {
 		Assert.assertEquals(8, param.size());
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
-
-	@Test
-	public void testlost() throws SqlParseException, IOException
-	{
-		String sql = "begin ${p1,@{p2},p#{p1},$[p1: midle1:${p1}], $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end";
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("p1", "1");
-		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
-		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ end";
-		Assert.assertEquals(expect, pstsSql);
-		Assert.assertEquals(5, param.size());
-		Assert.assertArrayEquals(new String[]{"","1" ,"2" ,"3" ,"4" }, param.toArray());
-	}
 	
 	//参数缺少大括号
 	@Test
 	public void testlost1() throws SqlParseException, IOException
 	{
-		String sql = "begin ${p1,@{p2},p#{p1},$[p1: midle1:${p1}], $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end";
+		String sql = "begin ${p1,@{p2},p#{p1},$[p1: midle1:${p1}], $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ $abc #XY end";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ end";
+		String expect = "begin ?,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ $abc #XY end";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(5, param.size());
 		Assert.assertArrayEquals(new String[]{"","1" ,"2" ,"3" ,"4" }, param.toArray());
@@ -91,6 +76,48 @@ public class SqlTemplateParserTest {
 		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
 			Assert.assertTrue(false);
 		} catch (SqlParseException e) {
+			e.printStackTrace();
+			Assert.assertTrue(true);
+		}
+		Assert.assertEquals((String)null, pstsSql);
+	}
+	
+	//参数名为空
+	@Test
+	public void testparamNameisNull() throws IOException 
+	{
+		String sql = "begin ${#{p3}} ${#{p2}} end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("p1", "1");
+		map.put("p2", "");
+		List<String> param = new ArrayList<String>();
+		String pstsSql=null;
+		try {
+		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		    System.out.println(pstsSql);
+			Assert.assertTrue(false);
+		} catch (SqlParseException e) {
+			e.printStackTrace();
+			Assert.assertTrue(true);
+		}
+		Assert.assertEquals((String)null, pstsSql);
+	}
+	
+	//参数缺少大括号
+	@Test
+	public void testlost3() throws IOException 
+	{
+		String sql = "begin ${p1},@{p2},p#{p1},$[p1: midle1:${p1}], $[p5: midle2:${p1}],@[p5:midle3:@{p2}],@[p2:midle4:@{p2},\\${,\\a,\\\\ end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("p1", "1");
+		map.put("p2", new String[]{"2","3","4"});
+		List<String> param = new ArrayList<String>();
+		String pstsSql=null;
+		try {
+		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
+			Assert.assertTrue(false);
+		} catch (SqlParseException e) {
+			e.printStackTrace();
 			Assert.assertTrue(true);
 		}
 		Assert.assertEquals((String)null, pstsSql);
@@ -99,14 +126,14 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testconcat() throws SqlParseException, IOException
 	{
-		String sql = "begin ${p1},@{p2},${p#{p1}},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end";
+		String sql = "begin ${p1},@{p2},${p#{p1}},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "3");
 		map.put("p3", "1");
 		map.put("p2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,?,?,?,?,1, midle1:?,1 ,\n ,midle3:?,?,?,,${,\\a,\\ end";
+		String expect = "begin ?,?,?,?,?,1, midle1:?,1 ,\n ,midle3:?,?,?,,${,\\a,\\ end#";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(9, param.size());
 		Assert.assertArrayEquals(new String[]{"3" ,"2" ,"3" ,"4" ,"1","3" ,"2" ,"3" ,"4" }, param.toArray());
