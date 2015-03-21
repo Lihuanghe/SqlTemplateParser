@@ -199,7 +199,7 @@ public class SqlTemplateParserTest {
 	public void testJscode() throws SqlParseException, IOException
 	{
 		Date d = new Date();
-		String sql = "begin ${abc|abc&&DateFormat.format(abc,'yyyy-MM-dd')} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
+		String sql = "begin ${b3|[]} @[b3|[]: abc ] ${abc|abc&&DateFormat.format(abc,'yyyy-MM-dd')} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("abc", d);
 		map.put("b3", new String[]{"2","3","4"});
@@ -208,12 +208,12 @@ public class SqlTemplateParserTest {
 		map.put("b2", tmp);
 		
 		List<String> param = new ArrayList<String>();
-		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		String pstsSql = SqlTemplateParser.parseString(sql, map, param,"utf-8");
 		System.out.println(pstsSql);
 		System.out.println(Arrays.toString(param.toArray()));
 		
 		String str = DateFormatUtils.format(d,"yyyy-MM-dd");
-		String expect = "begin ?  (?,?) "+str+" (?,?,?,?,?,?) end ";
+		String expect = "begin   ?  (?,?) "+str+" (?,?,?,?,?,?) end ";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(9, param.size());
 		Assert.assertArrayEquals(new String[]{str,"hello","2*3*4" ,"2","3","4","5","6","7"}, param.toArray());
