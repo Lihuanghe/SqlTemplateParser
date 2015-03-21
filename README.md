@@ -7,7 +7,7 @@
 
 1. 表名，参数名拼接
 
-> #{pName#{pName}} ： 参数pName值为5,首先解析成#{pName5}，然后再取pName5的值替换。比如用于动态表名： select * from table_#{month} where id = ${id}.
+> \#{pName#{pName}} ： 参数pName值为5,首先解析成#{pName5}，然后再取pName5的值替换。比如用于动态表名： select * from table_#{month} where id = ${id}.
 
 2. 参数替换
 
