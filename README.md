@@ -35,3 +35,14 @@ and beginDate = ${datetime}
  ] 
 and status = 1
 ```
+
+3. 目前正在做。
+
+> 参数支持调用js进行处理，以'|'分开，前边是参数名，后边是js代码。 js代码可选。 如：
+
+```
+${abc|DateFormat.format(abc,'yyyy-MM-dd')} 
+
+(@{b3|['hello'].concat(b3.join('*'))})
+
+```
