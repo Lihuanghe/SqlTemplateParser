@@ -1,0 +1,8 @@
+.git
+.git/*
+.settings
+.settings/*
+bin
+bin/*
+.classpath
+.project
