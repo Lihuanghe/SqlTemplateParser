@@ -28,7 +28,7 @@ public class ParameterEval {
 	private Object executeJS(Map map) throws ScriptException
 	{
 		RhinoScriptEngine engine = new RhinoScriptEngine();
-		System.out.println(jsCode);
+		//System.out.println(jsCode);
 		CompiledScript compilescript = engine.compile(jsCode);
 		Bindings bd = engine.createBindings();
 		bd.putAll(map);

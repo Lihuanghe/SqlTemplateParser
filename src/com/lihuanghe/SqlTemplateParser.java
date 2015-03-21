@@ -299,8 +299,9 @@ public class SqlTemplateParser {
 
 		Collection<String> set = null;
 		if (obj instanceof Collection) {
-			set = new ArrayList<String>();
-			set.addAll((Collection<String>)obj);
+			set = (Collection<String>) obj;
+/*			set = new ArrayList<String>();
+			set.addAll((Collection<String>)obj);*/
 		} else if (obj instanceof String[]) {
 			set = Arrays.asList((String[]) obj);
 		}
