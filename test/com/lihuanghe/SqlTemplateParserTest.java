@@ -163,11 +163,29 @@ public class SqlTemplateParserTest {
 		}
 		Assert.assertEquals((String)null, pstsSql);
 	}
-	
+	//参数缺少大括号
+	@Test
+	public void testparamNameContain() throws IOException 
+	{
+		String sql = "begin ${p1\n} end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("p1", "1");
+		map.put("p2", new String[]{"2","3","4"});
+		List<String> param = new ArrayList<String>();
+		String pstsSql=null;
+		try {
+		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
+			Assert.assertTrue(false);
+		} catch (SqlParseException e) {
+			e.printStackTrace();
+			Assert.assertTrue(true);
+		}
+		Assert.assertEquals((String)null, pstsSql);
+	}
 	@Test
 	public void testconcat() throws SqlParseException, IOException
 	{
-		String sql = "begin ${ p1 },@{ p2   },${p#{p1}\t},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
+		String sql = "begin ${ p1 },@{\t p2 \t },${p#{p1}\t},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "3");
 		map.put("p3", "1");

@@ -378,6 +378,9 @@ public class SqlTemplateParser {
 
 	private String parseParameter() throws SqlParseException, IOException {
 		switch (curChar) {
+		case '\r':
+		case '\n':
+			throw new SqlParseException("parameter contains '\\r' ,'\\n' ");
 		case '\\':
 			return escape();
 		case '#':
