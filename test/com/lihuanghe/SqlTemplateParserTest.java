@@ -185,17 +185,18 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testconcat() throws SqlParseException, IOException
 	{
-		String sql = "begin ${ p1 },@{\t p2 \t },${p#{p1}\t},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
+		String sql = "begin ${p4} ${ p1 },@{\t p2 \t },${p#{p1}\t},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "3");
 		map.put("p3", "1");
+		map.put("p4", "");
 		map.put("p2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,?,?,?,?,1, midle1:?,1 ,\n ,midle3:?,?,?,,${,\\a,\\ end#";
+		String expect = "begin ? ?,?,?,?,?,1, midle1:?,1 ,\n ,midle3:?,?,?,,${,\\a,\\ end#";
 		Assert.assertEquals(expect, pstsSql);
-		Assert.assertEquals(9, param.size());
-		Assert.assertArrayEquals(new String[]{"3" ,"2" ,"3" ,"4" ,"1","3" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(10, param.size());
+		Assert.assertArrayEquals(new String[]{"","3" ,"2" ,"3" ,"4" ,"1","3" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	@Test
 	public void testCNcode() throws SqlParseException, IOException

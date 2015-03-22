@@ -242,7 +242,7 @@ public class SqlTemplateParser {
 			} else if (obj instanceof String[]) {
 				set = Arrays.asList((String[]) obj);
 			}
-			// 如果是集全类型，且长度为0
+			// 如果是集合类型，且长度为0
 			if (set != null && set.size() == 0) {
 				// 丢弃读取的String
 				readUntil(']', false);
