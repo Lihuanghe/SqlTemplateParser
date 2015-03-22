@@ -167,7 +167,7 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testconcat() throws SqlParseException, IOException
 	{
-		String sql = "begin ${p1},@{p2},${p#{p1}},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
+		String sql = "begin ${ p1 },@{ p2   },${p#{p1}\t},#{p#{p1}},$[p1: midle1:${p1},#{p#{p1}} ],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end#";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "3");
 		map.put("p3", "1");

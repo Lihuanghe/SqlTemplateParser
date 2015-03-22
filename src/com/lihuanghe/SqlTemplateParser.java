@@ -4,13 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PushbackReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 
 /*
  * 非线程安全，每次解析都要 new一个新对象
@@ -35,11 +35,11 @@ public class SqlTemplateParser {
 	 **/
 	protected SqlTemplateParser(InputStream in, String charset,
 			Map<String, Object> param) throws UnsupportedEncodingException {
-		this.in = new PushbackReader(new InputStreamReader(in, charset));
+		this.in = new InputStreamReader(in, charset);
 		this.param = param;
 	}
 
-	private PushbackReader in;
+	private InputStreamReader in;
 	private Map<String, Object> param;
 	private List<String> pstsParam;
 	private int curChar = -1;
@@ -344,7 +344,10 @@ public class SqlTemplateParser {
 		// 已获取解析后的参数名
 		if(paramName!=null){
 			String tmp = (String) paramName.getValueFromMap(param);
-			sqlbuf.append((tmp == null ? "" : tmp));
+			if(tmp!=null)
+			{
+				sqlbuf.append(tmp);
+			}
 		}
 		return sqlbuf.toString();
 	}
@@ -389,13 +392,17 @@ public class SqlTemplateParser {
 		curChar = readandsavepre();
 		StringBuilder strbuf = new StringBuilder();
 		while (curChar != -1 && curChar != '|' && curChar != c) {
-			strbuf.append(parseParameter());
+			
+			String tmp = parseParameter();
+			strbuf.append(tmp);
 			curChar = readandsavepre();
 		}
+		//去掉参数名的空格
+		String name = strbuf.toString().trim();
 		// 参数名为空
-		if (strbuf.length() == 0 || "".equals(strbuf.toString())) {
+		if (StringUtils.isEmpty(name)) {
 			throw new SqlParseException(" after \"" + (char) prechar
-					+ (char) curChar + "\", paramName is null at position : "
+					+ (char) curChar + "\", Parameter Name is null at position : "
 					+ sqlpos);
 		}
 
@@ -404,18 +411,17 @@ public class SqlTemplateParser {
 					" :position[" + (sqlpos - strbuf.length()) + "]\t expect '"
 							+ (char) c + "'").toString());
 		} else if (curChar == '|') {
-			String name = strbuf.toString();
+			
 			// 读取filter内容，应该是一段可执行的js脚本
 			String jsCode = readUntil(c, true);
 			return new ParameterEval(name, jsCode,
 					ParamType.Array.equals(paramtype));
 		} else {
-			String name = strbuf.toString();
 			return new ParameterEval(name, null,
 					ParamType.Array.equals(paramtype));
 		}
 	}
-
+	
 	private int readandsavepre() throws IOException {
 		prechar = curChar;
 		curChar = in.read();

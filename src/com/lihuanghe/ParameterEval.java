@@ -3,17 +3,22 @@ package com.lihuanghe;
 import java.util.Map;
 
 import javax.script.Bindings;
-import javax.script.CompiledScript;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.commons.lang.time.DateFormatUtils;
-
-import com.sun.script.javascript.RhinoScriptEngine;
 
 public class ParameterEval {
 	private boolean isArray = false;
 	private String paramName;
 	private String jsCode ;
+	private static final ScriptEngineManager manager = new ScriptEngineManager();
+	
+	/**
+	 *使用静态类型， JavaScriptEngine在jdk1.6的RhinoScriptEngine实现保证线程安全.
+	 */
+	private static final ScriptEngine engine = manager.getEngineByName("js");
 	
 	public ParameterEval(String name,String code,boolean isArray)
 	{
@@ -27,13 +32,10 @@ public class ParameterEval {
 	
 	private Object executeJS(Map map) throws ScriptException
 	{
-		RhinoScriptEngine engine = new RhinoScriptEngine();
-		//System.out.println(jsCode);
-		CompiledScript compilescript = engine.compile(jsCode);
 		Bindings bd = engine.createBindings();
 		bd.put(paramName,map.get(paramName));
 		bd.put("DateFormat",new DateFormatUtils());
-		Object obj = compilescript.eval(bd);
+		Object obj = engine.eval(jsCode,bd);
 		return obj;
 	}
 	
