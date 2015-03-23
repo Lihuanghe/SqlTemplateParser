@@ -1,4 +1,4 @@
-package com.lihuanghe;
+ï»¿package com.lihuanghe;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class SqlTemplateParserTest {
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	
-	//Ä©Î²µÄ×ªÒåÒì³£
+	//æœ«å°¾çš„è½¬ä¹‰å¼‚å¸¸
 	@Test
 	public void testlost4() 
 	{
@@ -69,7 +70,7 @@ public class SqlTemplateParserTest {
 		}
 	}
 	
-	//Ä©Î²È±ÉÙ·ûºÅ
+	//æœ«å°¾ç¼ºå°‘ç¬¦å·
 	@Test
 	public void testlost5() 
 	{
@@ -87,7 +88,7 @@ public class SqlTemplateParserTest {
 			e.printStackTrace();
 		}
 	}
-	//²ÎÊıÈ±ÉÙ´óÀ¨ºÅ
+	//å‚æ•°ç¼ºå°‘å¤§æ‹¬å·
 	@Test
 	public void testlost1() throws SqlParseException, IOException
 	{
@@ -103,7 +104,7 @@ public class SqlTemplateParserTest {
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	
-	//²ÎÊıÈ±ÉÙ´óÀ¨ºÅ
+	//å‚æ•°ç¼ºå°‘å¤§æ‹¬å·
 	@Test
 	public void testlost2() throws IOException 
 	{
@@ -123,7 +124,7 @@ public class SqlTemplateParserTest {
 		Assert.assertEquals((String)null, pstsSql);
 	}
 	
-	//²ÎÊıÃûÎª¿Õ
+	//å‚æ•°åä¸ºç©º
 	@Test
 	public void testparamNameisNull() throws IOException 
 	{
@@ -144,7 +145,7 @@ public class SqlTemplateParserTest {
 		Assert.assertEquals((String)null, pstsSql);
 	}
 	
-	//²ÎÊıÈ±ÉÙ´óÀ¨ºÅ
+	//å‚æ•°ç¼ºå°‘å¤§æ‹¬å·
 	@Test
 	public void testlost3() throws IOException 
 	{
@@ -163,7 +164,7 @@ public class SqlTemplateParserTest {
 		}
 		Assert.assertEquals((String)null, pstsSql);
 	}
-	//²ÎÊıÈ±ÉÙ´óÀ¨ºÅ
+	//å‚æ•°ç¼ºå°‘å¤§æ‹¬å·
 	@Test
 	public void testparamNameContain() throws IOException 
 	{
@@ -201,25 +202,26 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testCNcode() throws SqlParseException, IOException
 	{
-		String sql = "¿ªÊ¼ ${²ÎÊı1},@{²ÎÊı2},²ÎÊı#{²ÎÊı1},$[²ÎÊı1: ÖĞ¼ä1:${²ÎÊı1}], $[²ÎÊı5: ÖĞ¼ä2:${²ÎÊı1}],@[²ÎÊı2:ÖĞ¼ä3:@{²ÎÊı2}],@[²ÎÊı5:midle4:@{²ÎÊı2}],\\${,\\a,\\\\ ½áÊø";
+		String sql = "å¼€å§‹ ${å‚æ•°1},@{å‚æ•°2},å‚æ•°#{å‚æ•°1},$[å‚æ•°1: ä¸­é—´1:${å‚æ•°1}], $[å‚æ•°5: ä¸­é—´2:${å‚æ•°1}],@[å‚æ•°2:ä¸­é—´3:@{å‚æ•°2}],@[å‚æ•°5:midle4:@{å‚æ•°2}],\\${,\\a,\\\\ ç»“æŸ";
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("²ÎÊı1", "1");
-		map.put("²ÎÊı2", new String[]{"2","3","4"});
+		map.put("å‚æ•°1", "1");
+		map.put("å‚æ•°2", new String[]{"2","3","4"});
 		List<String> param = new ArrayList<String>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "¿ªÊ¼ ?,?,?,?,²ÎÊı1, ÖĞ¼ä1:?, ,ÖĞ¼ä3:?,?,?,,${,\\a,\\ ½áÊø";
+		String expect = "å¼€å§‹ ?,?,?,?,å‚æ•°1, ä¸­é—´1:?, ,ä¸­é—´3:?,?,?,,${,\\a,\\ ç»“æŸ";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
 		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
 	}
 	
-	//²âÊÔjsÖ´ĞĞ
+	//æµ‹è¯•jsæ‰§è¡Œ
 	@Test
 	public void testJscode() throws SqlParseException, IOException
 	{
 		Date d = new Date();
-		String sql = "begin ${b3|[]} @[b3|[]: abc ] ${abc|abc&&DateFormat.format(abc,'yyyy-MM-dd')} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
+		String sql = "begin ${b3|[]} @[b3|[]: abc ] ${abc|abc&&DateFormat.format(abc,'yyyy-MM-dd')} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} #{beginDate|DateFormat.format(DateUtils.addMonths(DateUtils.parseDate(beginDate, ['yyyy-MM-dd']),-1),'yyyyMM')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
 		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("beginDate","2015-03-23");
 		map.put("abc", d);
 		map.put("b3", new String[]{"2","3","4"});
 		List<String> tmp = new ArrayList<String>();
@@ -232,13 +234,13 @@ public class SqlTemplateParserTest {
 		System.out.println(Arrays.toString(param.toArray()));
 		
 		String str = DateFormatUtils.format(d,"yyyy-MM-dd");
-		String expect = "begin   ?  (?,?) "+str+" (?,?,?,?,?,?) end ";
+		String expect = "begin   ?  (?,?) "+str+" 201502 (?,?,?,?,?,?) end ";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(9, param.size());
 		Assert.assertArrayEquals(new String[]{str,"hello","2*3*4" ,"2","3","4","5","6","7"}, param.toArray());
 	}
 	
-	//²âÊÔjsÖ´ĞĞĞÔÄÜ 
+	//æµ‹è¯•jsæ‰§è¡Œæ€§èƒ½ 
 	@Test
 	public void testJsperf() throws SqlParseException, IOException
 	{
@@ -254,6 +256,6 @@ public class SqlTemplateParserTest {
 		};
 		Date ed = new Date();
 		System.out.println(ed.getTime() - st.getTime());
-		Assert.assertTrue("jsÖ´ĞĞ¹ıÂı£¬µ¥´ÎÖ´ĞĞ´óÓÚ10ms",(ed.getTime() - st.getTime())<10000);
+		Assert.assertTrue("jsæ‰§è¡Œè¿‡æ…¢ï¼Œå•æ¬¡æ‰§è¡Œå¤§äº10ms",(ed.getTime() - st.getTime())<10000);
 	}
 }
