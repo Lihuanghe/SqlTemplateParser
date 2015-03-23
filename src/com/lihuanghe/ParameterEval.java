@@ -8,15 +8,18 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 public class ParameterEval {
 	private boolean isArray = false;
 	private String paramName;
 	private String jsCode ;
 	private static final ScriptEngineManager manager = new ScriptEngineManager();
+	private static final DateFormatUtils dataformat = new DateFormatUtils();
+	private static final DateUtils dateutils = new DateUtils();
 	
 	/**
-	 *使用静态类型， JavaScriptEngine在jdk1.6的RhinoScriptEngine实现保证线程安全.
+	 *浣跨敤闈欐�佺被鍨嬶紝 JavaScriptEngine鍦╦dk1.6鐨凴hinoScriptEngine瀹炵幇淇濊瘉绾跨▼瀹夊叏.
 	 */
 	private static final ScriptEngine engine = manager.getEngineByName("js");
 	
@@ -34,7 +37,8 @@ public class ParameterEval {
 	{
 		Bindings bd = engine.createBindings();
 		bd.put(paramName,map.get(paramName));
-		bd.put("DateFormat",new DateFormatUtils());
+		bd.put("DateFormat",dataformat);
+		bd.put("DateUtils",dateutils);
 		Object obj = engine.eval(jsCode,bd);
 		return obj;
 	}

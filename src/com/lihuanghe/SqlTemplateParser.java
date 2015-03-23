@@ -1,4 +1,4 @@
-package com.lihuanghe;
+ï»¿package com.lihuanghe;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,14 +13,14 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /*
- * ·ÇÏß³Ì°²È«£¬Ã¿´Î½âÎö¶¼Òª newÒ»¸öĞÂ¶ÔÏó
+ * éçº¿ç¨‹å®‰å…¨ï¼Œæ¯æ¬¡è§£æéƒ½è¦ newä¸€ä¸ªæ–°å¯¹è±¡
  * 
- ${paramter#{String}}  -- ±ØÑ¡²ÎÊı
- $[paramter: and column = ${} ]  --¿ÉÑ¡²ÎÊı,Èç¹ûparamterÖµÎª¿Õ£¬Óï¾ä²»Æğ×÷ÓÃ
- @{array}  --±ØÑ¡Êı×éÕ¹¿ª
- @[array: and id in (@{array})]   --¿ÉÑ¡Êı×é£¬Èç¹ûÊı×éÎª¿Õ£¬ÔòÓï¾ä²»Æğ×÷ÓÃ
+ ${paramter#{String}}  -- å¿…é€‰å‚æ•°
+ $[paramter: and column = ${} ]  --å¯é€‰å‚æ•°,å¦‚æœparamterå€¼ä¸ºç©ºï¼Œè¯­å¥ä¸èµ·ä½œç”¨
+ @{array}  --å¿…é€‰æ•°ç»„å±•å¼€
+ @[array: and id in (@{array})]   --å¯é€‰æ•°ç»„ï¼Œå¦‚æœæ•°ç»„ä¸ºç©ºï¼Œåˆ™è¯­å¥ä¸èµ·ä½œç”¨
 
- #{String}  --×Ö·û´®Æ´½Ó£¬ÓÃÓÚ´¦Àí¶¯Ì¬±íÃû
+ #{String}  --å­—ç¬¦ä¸²æ‹¼æ¥ï¼Œç”¨äºå¤„ç†åŠ¨æ€è¡¨å
 
  */
 
@@ -28,9 +28,9 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param in
-	 *            ÊäÈëµÄÔ­Ê¼sql
+	 *            è¾“å…¥çš„åŸå§‹sql
 	 * @param param
-	 *            ÓÃ»§ÊäÈëµÄ²ÎÊı»òÕß»·¾³±äÁ¿
+	 *            ç”¨æˆ·è¾“å…¥çš„å‚æ•°æˆ–è€…ç¯å¢ƒå˜é‡
 	 * @throws UnsupportedEncodingException
 	 **/
 	protected SqlTemplateParser(InputStream in, String charset,
@@ -44,8 +44,8 @@ public class SqlTemplateParser {
 	private List<String> pstsParam;
 	private int curChar = -1;
 	private int prechar = -1;
-	private int sqlpos = 0; // ÓÃÓÚ¼ÇÂ¼µ±Ç°¶ÁÈ¡µ½ÄÄ¸ö×Ö·û
-	private ParamType paramtype; // ÓÃÓÚÇø±ğµ±Ç°Òª´¦ÀíµÄ²ÎÊıÀàĞÍÊÇ·ñÊÇÊı×é
+	private int sqlpos = 0; // ç”¨äºè®°å½•å½“å‰è¯»å–åˆ°å“ªä¸ªå­—ç¬¦
+	private ParamType paramtype; // ç”¨äºåŒºåˆ«å½“å‰è¦å¤„ç†çš„å‚æ•°ç±»å‹æ˜¯å¦æ˜¯æ•°ç»„
 
 	public class SqlParseException extends RuntimeException {
 
@@ -72,12 +72,12 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param sql
-	 *            ´ı½âÎöµÄsql
+	 *            å¾…è§£æçš„sql
 	 * @param map
-	 *            ´æ´¢²ÎÊı±äÁ¿
+	 *            å­˜å‚¨å‚æ•°å˜é‡
 	 * @param pstsParam
-	 *            ÓÃÀ´´æ´¢½âÎöÖ®ºóµÄ²ÎÊı
-	 * @return sql ½âÎöÍê³ÉµÄsql
+	 *            ç”¨æ¥å­˜å‚¨è§£æä¹‹åçš„å‚æ•°
+	 * @return sql è§£æå®Œæˆçš„sql
 	 */
 	public static String parseString(String sql, Map map, List<String> pstsParam)
 			throws SqlParseException, IOException {
@@ -86,12 +86,12 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param sql
-	 *            ´ı½âÎöµÄsql
+	 *            å¾…è§£æçš„sql
 	 * @param map
-	 *            ´æ´¢²ÎÊı±äÁ¿
+	 *            å­˜å‚¨å‚æ•°å˜é‡
 	 * @param pstsParam
-	 *            ÓÃÀ´´æ´¢½âÎöÖ®ºóµÄ²ÎÊı
-	 * @return sql ½âÎöÍê³ÉµÄsql
+	 *            ç”¨æ¥å­˜å‚¨è§£æä¹‹åçš„å‚æ•°
+	 * @return sql è§£æå®Œæˆçš„sql
 	 */
 	public static String parseString(String sql, Map map,
 			List<String> pstsParam, String charset) throws SqlParseException,
@@ -118,12 +118,12 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param in
-	 *            ´ÓInputStream¶ÁÈ¡sqlÁ÷
+	 *            ä»InputStreamè¯»å–sqlæµ
 	 * @param map
-	 *            ´æ´¢²ÎÊı±äÁ¿
+	 *            å­˜å‚¨å‚æ•°å˜é‡
 	 * @param pstsParam
-	 *            ÓÃÀ´´æ´¢½âÎöÖ®ºóµÄ²ÎÊı
-	 * @return sql ½âÎöÍê³ÉµÄsql
+	 *            ç”¨æ¥å­˜å‚¨è§£æä¹‹åçš„å‚æ•°
+	 * @return sql è§£æå®Œæˆçš„sql
 	 */
 	public static String parseString(InputStream in, Map map,
 			List<String> pstsParam) throws SqlParseException, IOException {
@@ -132,12 +132,12 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param in
-	 *            ´ÓInputStream¶ÁÈ¡sqlÁ÷
+	 *            ä»InputStreamè¯»å–sqlæµ
 	 * @param map
-	 *            ´æ´¢²ÎÊı±äÁ¿
+	 *            å­˜å‚¨å‚æ•°å˜é‡
 	 * @param pstsParam
-	 *            ÓÃÀ´´æ´¢½âÎöÖ®ºóµÄ²ÎÊı
-	 * @return sql ½âÎöÍê³ÉµÄsql
+	 *            ç”¨æ¥å­˜å‚¨è§£æä¹‹åçš„å‚æ•°
+	 * @return sql è§£æå®Œæˆçš„sql
 	 * @throws IOException
 	 */
 	public static String parseString(InputStream in, Map map,
@@ -149,8 +149,8 @@ public class SqlTemplateParser {
 
 	/**
 	 * @param pstsParam
-	 *            ÓÃÀ´´æ´¢½âÎöÖ®ºóµÄ²ÎÊı
-	 * @return sql ½âÎöÍê³ÉµÄsql
+	 *            ç”¨æ¥å­˜å‚¨è§£æä¹‹åçš„å‚æ•°
+	 * @return sql è§£æå®Œæˆçš„sql
 	 */
 	protected String parse(List<String> pstsParam) throws SqlParseException,
 			IOException {
@@ -224,14 +224,14 @@ public class SqlTemplateParser {
 	}
 
 	protected String optionalParameter() throws IOException, SqlParseException {
-		// »ñÈ¡²ÎÊı
+		// è·å–å‚æ•°
 		ParameterEval paramName = readParamerUtil(':');
 
 		if (paramName.isArray()) {
 			Object obj = paramName.getValueFromMap(param);
 
 			if (obj == null) {
-				// ¶ªÆú¶ÁÈ¡µÄString
+				// ä¸¢å¼ƒè¯»å–çš„String
 				readUntil(']', false);
 				return "";
 			}
@@ -242,9 +242,9 @@ public class SqlTemplateParser {
 			} else if (obj instanceof String[]) {
 				set = Arrays.asList((String[]) obj);
 			}
-			// Èç¹ûÊÇ¼¯ºÏÀàĞÍ£¬ÇÒ³¤¶ÈÎª0
+			// å¦‚æœæ˜¯é›†åˆç±»å‹ï¼Œä¸”é•¿åº¦ä¸º0
 			if (set != null && set.size() == 0) {
-				// ¶ªÆú¶ÁÈ¡µÄString
+				// ä¸¢å¼ƒè¯»å–çš„String
 				readUntil(']', false);
 				return "";
 			}
@@ -254,7 +254,7 @@ public class SqlTemplateParser {
 			Object obj = paramName.getValueFromMap(param);
 			String str = String.valueOf(obj == null ? "" : obj);
 			if ("".equals(str)) {
-				// ¶ªÆú¶ÁÈ¡µÄString
+				// ä¸¢å¼ƒè¯»å–çš„String
 				readUntil(']', false);
 				return "";
 			} else {
@@ -281,10 +281,10 @@ public class SqlTemplateParser {
 		return sqlbuf.toString();
 	}
 
-	// ´¦Àí±ØÑ¡²ÎÊı
+	// å¤„ç†å¿…é€‰å‚æ•°
 	protected String requiredParameter() throws IOException, SqlParseException {
 
-		// »ñÈ¡²ÎÊıÃû
+		// è·å–å‚æ•°å
 		ParameterEval paramName = readParamerUtil('}');
 		return addpstsParam(paramName);
 	}
@@ -306,7 +306,7 @@ public class SqlTemplateParser {
 			set = Arrays.asList((String[]) obj);
 		}
 
-		// Èç¹û²»ÊÇ¼¯ºÏÀàĞÍ.
+		// å¦‚æœä¸æ˜¯é›†åˆç±»å‹.
 		if (set == null) {
 			pstsParam.add(String.valueOf(obj));
 			return "?";
@@ -319,7 +319,7 @@ public class SqlTemplateParser {
 			}
 			sqlbuf.deleteCharAt(sqlbuf.length() - 1);
 			return sqlbuf.toString();
-		} else // ¼¯ºÏÎª¿Õ
+		} else // é›†åˆä¸ºç©º
 		{
 			// do Nothing
 			return "";
@@ -341,7 +341,7 @@ public class SqlTemplateParser {
 			sqlbuf.append((char) prechar).append((char) curChar);
 		}
 
-		// ÒÑ»ñÈ¡½âÎöºóµÄ²ÎÊıÃû
+		// å·²è·å–è§£æåçš„å‚æ•°å
 		if(paramName!=null){
 			String tmp = (String) paramName.getValueFromMap(param);
 			if(tmp!=null)
@@ -361,7 +361,7 @@ public class SqlTemplateParser {
 			if (isparseParamName) {
 				strbuf.append(parseParameter());
 			} else {
-				// ¶ÔÓÚÒª¶ªÆúµÄ×Ö·û£¬²»ÔÙ½âÎö
+				// å¯¹äºè¦ä¸¢å¼ƒçš„å­—ç¬¦ï¼Œä¸å†è§£æ
 				strbuf.append((char) curChar);
 			}
 
@@ -400,9 +400,9 @@ public class SqlTemplateParser {
 			strbuf.append(tmp);
 			curChar = readandsavepre();
 		}
-		//È¥µô²ÎÊıÃûµÄ¿Õ¸ñ
+		//å»æ‰å‚æ•°åçš„ç©ºæ ¼
 		String name = strbuf.toString().trim();
-		// ²ÎÊıÃûÎª¿Õ
+		// å‚æ•°åä¸ºç©º
 		if (StringUtils.isEmpty(name)) {
 			throw new SqlParseException(" after \"" + (char) prechar
 					+ (char) curChar + "\", Parameter Name is null at position : "
@@ -415,7 +415,7 @@ public class SqlTemplateParser {
 							+ (char) c + "'").toString());
 		} else if (curChar == '|') {
 			
-			// ¶ÁÈ¡filterÄÚÈİ£¬Ó¦¸ÃÊÇÒ»¶Î¿ÉÖ´ĞĞµÄjs½Å±¾
+			// è¯»å–filterå†…å®¹ï¼Œåº”è¯¥æ˜¯ä¸€æ®µå¯æ‰§è¡Œçš„jsè„šæœ¬
 			String jsCode = readUntil(c, true);
 			return new ParameterEval(name, jsCode,
 					ParamType.Array.equals(paramtype));
