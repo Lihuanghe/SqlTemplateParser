@@ -25,7 +25,7 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("Ids", new String[]{"2","3","4"});
 		map.put("month", "201503");
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 		String expect = "select * from shops_201503 \nwhere 1=1  \nand  id in ('Nouse',?,?,?)   \nand status = 1";
 		System.out.println(Arrays.toString(param.toArray()));
@@ -33,7 +33,7 @@ public class SqlTemplateParserTest {
 		
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(3, param.size());
-		Assert.assertArrayEquals(new String[]{"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{"2" ,"3" ,"4" }), Arrays.toString(param.toArray()));
 		
 	}
 	@Test
@@ -43,12 +43,12 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 		String expect = "begin ?,?,?,?,p1, midle1:?,\n ,midle3:?,?,?,,${,\\a,\\ end$";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
-		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }), Arrays.toString(param.toArray()));
 	}
 	
 	//末尾的转义异常
@@ -57,7 +57,7 @@ public class SqlTemplateParserTest {
 	{
 		String sql = "begin  end\\";
 		Map<String, Object> map = new HashMap<String, Object>();
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		try {
 			String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 			Assert.assertTrue(false);
@@ -76,7 +76,7 @@ public class SqlTemplateParserTest {
 	{
 		String sql = "begin  $[lost5: asff end";
 		Map<String, Object> map = new HashMap<String, Object>();
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		try {
 			String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 			Assert.assertTrue(false);
@@ -96,12 +96,12 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 		String expect = "begin ,p1, midle1:?, ,midle3:?,?,?,,${,\\a,\\ $abc #XY end";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(4, param.size());
-		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{"1" ,"2" ,"3" ,"4" }),Arrays.toString( param.toArray()));
 	}
 	
 	//参数缺少大括号
@@ -112,7 +112,7 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql=null;
 		try {
 		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
@@ -132,7 +132,7 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", "");
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql=null;
 		try {
 		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
@@ -153,7 +153,7 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql=null;
 		try {
 		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
@@ -172,7 +172,7 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql=null;
 		try {
 		    pstsSql = SqlTemplateParser.parseString(sql, map, param);
@@ -192,12 +192,12 @@ public class SqlTemplateParserTest {
 		map.put("p3", "1");
 		map.put("p4", "");
 		map.put("p2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 		String expect = "begin ? ?,?,?,?,?,1, midle1:?,1 ,\n ,midle3:?,?,?,,${,\\a,\\ end#";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(10, param.size());
-		Assert.assertArrayEquals(new String[]{"","3" ,"2" ,"3" ,"4" ,"1","3" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{"","3" ,"2" ,"3" ,"4" ,"1","3" ,"2" ,"3" ,"4" }), Arrays.toString(param.toArray()));
 	}
 	@Test
 	public void testCNcode() throws SqlParseException, IOException
@@ -206,12 +206,12 @@ public class SqlTemplateParserTest {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("参数1", "1");
 		map.put("参数2", new String[]{"2","3","4"});
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
 		String expect = "开始 ?,?,?,?,参数1, 中间1:?, ,中间3:?,?,?,,${,\\a,\\ 结束";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
-		Assert.assertArrayEquals(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }), Arrays.toString(param.toArray()));
 	}
 	
 	//测试js执行
@@ -228,7 +228,7 @@ public class SqlTemplateParserTest {
 		tmp.addAll(Arrays.asList(new String[]{"2","3","4"}));
 		map.put("b2", tmp);
 		
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param,"utf-8");
 		System.out.println(pstsSql);
 		System.out.println(Arrays.toString(param.toArray()));
@@ -237,8 +237,27 @@ public class SqlTemplateParserTest {
 		String expect = "begin   ?  (?,?) "+str+" 201502 (?,?,?,?,?,?) end ";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(9, param.size());
-		Assert.assertArrayEquals(new String[]{str,"hello","2*3*4" ,"2","3","4","5","6","7"}, param.toArray());
+		Assert.assertEquals(Arrays.toString(new String[]{str,"hello","2*3*4" ,"2","3","4","5","6","7"}), Arrays.toString(param.toArray()));
 	}
+	
+	@Test
+	public void testinnerOptionalParameter()throws SqlParseException, IOException
+	{
+		String sql = "begin $[p1: abc $[p3: def(${p2})]] $[p4: abc $[p3: def(${p2})]] end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("p1", "3");
+		map.put("p3", "1");
+		map.put("p4", "");
+		map.put("p2", new String[]{"2","3","4"});
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
+		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		String expect = "begin  abc  def(?,?,?)  end";
+		Assert.assertEquals(expect, pstsSql);
+		Assert.assertEquals(3, param.size());
+		Assert.assertEquals(Arrays.toString(new String[]{"2" ,"3" ,"4"}), Arrays.toString(param.toArray()));
+		
+	}
+	
 	
 	//测试js执行性能 
 	@Test
@@ -250,7 +269,7 @@ public class SqlTemplateParserTest {
 		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} #{abc|DateFormat.format(abc,'yyyy-MM-dd')}end ";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("abc", d);
-		List<String> param = new ArrayList<String>();
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		for(;i< 1000;i++){
 			SqlTemplateParser.parseString(sql, map, param);
 		};
