@@ -34,8 +34,8 @@ public class SqlTemplateParser {
 	 *            用户输入的参数或者环境变量
 	 * @throws UnsupportedEncodingException
 	 **/
-	protected SqlTemplateParser(InputStream in, String charset,
-			Map<String, Object> param) throws UnsupportedEncodingException {
+	protected SqlTemplateParser(InputStream in, String charset, Map<String, Object> param)
+			throws UnsupportedEncodingException {
 		this.in = new InputStreamReader(in, charset);
 		this.param = param;
 	}
@@ -60,11 +60,9 @@ public class SqlTemplateParser {
 		String, Array
 	}
 
-	private static SqlTemplateParser createParser(InputStream in, Map map,
-			String charset) {
+	private static SqlTemplateParser createParser(InputStream in, Map map, String charset) {
 		try {
-			return new SqlTemplateParser(in, charset == null ? "utf-8"
-					: charset, map);
+			return new SqlTemplateParser(in, charset == null ? "utf-8" : charset, map);
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
@@ -93,14 +91,12 @@ public class SqlTemplateParser {
 	 *            用来存储解析之后的参数
 	 * @return sql 解析完成的sql
 	 */
-	public static String parseString(String sql, Map map,
-			List<ParameterPrepareStatement> pstsParam, String charset) throws SqlParseException,
-			IOException {
+	public static String parseString(String sql, Map map, List<ParameterPrepareStatement> pstsParam, String charset)
+			throws SqlParseException, IOException {
 		InputStream in = null;
 
 		try {
-			in = new ByteArrayInputStream(
-					sql.getBytes(charset == null ? "utf-8" : charset));
+			in = new ByteArrayInputStream(sql.getBytes(charset == null ? "utf-8" : charset));
 			return parseString(in, map, pstsParam, charset);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -125,8 +121,8 @@ public class SqlTemplateParser {
 	 *            用来存储解析之后的参数
 	 * @return sql 解析完成的sql
 	 */
-	public static String parseString(InputStream in, Map map,
-			List<ParameterPrepareStatement> pstsParam) throws SqlParseException, IOException {
+	public static String parseString(InputStream in, Map map, List<ParameterPrepareStatement> pstsParam)
+			throws SqlParseException, IOException {
 		return parseString(in, map, pstsParam, null);
 	}
 
@@ -140,9 +136,8 @@ public class SqlTemplateParser {
 	 * @return sql 解析完成的sql
 	 * @throws IOException
 	 */
-	public static String parseString(InputStream in, Map map,
-			List<ParameterPrepareStatement> pstsParam, String charset) throws SqlParseException,
-			IOException {
+	public static String parseString(InputStream in, Map map, List<ParameterPrepareStatement> pstsParam, String charset)
+			throws SqlParseException, IOException {
 		SqlTemplateParser parser = createParser(in, map, charset);
 		return parser.parse(pstsParam);
 	}
@@ -152,8 +147,7 @@ public class SqlTemplateParser {
 	 *            用来存储解析之后的参数
 	 * @return sql 解析完成的sql
 	 */
-	protected String parse(List<ParameterPrepareStatement> pstsParam) throws SqlParseException,
-			IOException {
+	protected String parse(List<ParameterPrepareStatement> pstsParam) throws SqlParseException, IOException {
 		return statmentUntilEnd(pstsParam);
 	}
 
@@ -217,23 +211,16 @@ public class SqlTemplateParser {
 		case '{':
 			return requiredParameter(pstsParam);
 		default:
-			return new StringBuilder().append((char) prechar)
-					.append((char) curChar).toString();
+			return new StringBuilder().append((char) prechar).append((char) curChar).toString();
 		}
 	}
 
-	protected String optionalParameter(List<ParameterPrepareStatement> pstsParam) throws IOException, SqlParseException {
-		// 获取参数
-		ParameterEval paramName = readParamerUtil(':');
-
+	private boolean isEmpty(ParameterEval paramName) {
 		if (paramName.isArray()) {
 			Object obj = paramName.getValueFromMap(param);
 
 			if (obj == null) {
-				// 丢弃读取的String
-				
-				statmentUntil(']',new ArrayList());
-				return "";
+				return true;
 			}
 
 			Collection<String> set = null;
@@ -244,27 +231,47 @@ public class SqlTemplateParser {
 			}
 			// 如果是集合类型，且长度为0
 			if (set != null && set.size() == 0) {
-				// 丢弃读取的String
-				 statmentUntil(']',new ArrayList());
-				return "";
+				return true;
 			}
-			String statement = statmentUntil(']',pstsParam);
-			return statement;
+			return false;
 		} else {
 			Object obj = paramName.getValueFromMap(param);
 			String str = String.valueOf(obj == null ? "" : obj);
-			if ("".equals(str)) {
-				// 丢弃读取的String
-				statmentUntil(']',new ArrayList());
-				return "";
+			if (StringUtils.isEmpty(str)) {
+				return true;
 			} else {
-				String statement = statmentUntil(']',pstsParam);
-				return statement;
+				return false;
 			}
 		}
 	}
 
-	protected String statmentUntil(int until,List<ParameterPrepareStatement> pstsParam) throws IOException,
+	protected String optionalParameter(List<ParameterPrepareStatement> pstsParam) throws IOException, SqlParseException {
+		// 获取参数
+		ParameterEval paramName = readParamerUntil(new int[] { ':', '?' });
+		if (curChar == ':') {
+			if (isEmpty(paramName)) {
+				statmentUntil(']', new ArrayList());
+				// 丢弃statement
+				return "";
+			} else {
+				return statmentUntil(']', pstsParam);
+			}
+		} else if (curChar == '?') {
+			if (isEmpty(paramName)) {
+				statmentUntil(':', new ArrayList()); // 不执行的statement
+				return statmentUntil(']', pstsParam);
+			} else {
+				String s = statmentUntil(':', pstsParam);
+
+				statmentUntil(']', new ArrayList()); // 不执行的statement
+
+				return s;
+			}
+		}
+		throw new SqlParseException("something Error. never be here!!");
+	}
+
+	protected String statmentUntil(int until, List<ParameterPrepareStatement> pstsParam) throws IOException,
 			SqlParseException {
 
 		StringBuilder sqlbuf = new StringBuilder();
@@ -285,45 +292,39 @@ public class SqlTemplateParser {
 	protected String requiredParameter(List<ParameterPrepareStatement> pstsParam) throws IOException, SqlParseException {
 
 		// 获取参数名
-		ParameterEval paramName = readParamerUtil('}');
-		return addpstsParam(paramName,pstsParam);
+		ParameterEval paramName = readParamerUntil(new int[] { '}' });
+		return addpstsParam(paramName, pstsParam);
 	}
 
-	private String addpstsParam(ParameterEval paramName,List<ParameterPrepareStatement> pstsParam) {
+	private String addpstsParam(ParameterEval paramName, List<ParameterPrepareStatement> pstsParam) {
 		StringBuilder sqlbuf = new StringBuilder();
 
+		
 		Object obj = paramName.getValueFromMap(param);
-		if (obj == null) {
-			return "";
-		}
-
+		
+		//如果没有该参数，则忽略
+		if(obj == null) return "";
+		
 		Collection<String> set = null;
 		if (obj instanceof Collection) {
 			set = (Collection<String>) obj;
-/*			set = new ArrayList<String>();
-			set.addAll((Collection<String>)obj);*/
 		} else if (obj instanceof String[]) {
 			set = Arrays.asList((String[]) obj);
 		}
-
 		// 如果不是集合类型.
 		if (set == null) {
-			pstsParam.add(new ParameterPrepareStatement(sqlpos,String.valueOf(obj)));
+			pstsParam.add(new ParameterPrepareStatement(sqlpos, String.valueOf(obj)));
 			return "?";
-		}
-
-		if (set != null && set.size() > 0) {
-			for (Object s : set) {
-				String p = String.valueOf(s);
-				pstsParam.add(new ParameterPrepareStatement(sqlpos,p));
-				sqlbuf.append('?').append(',');
+		} else {
+			if (set.size() > 0) {
+				for (Object s : set) {
+					String p = String.valueOf(s);
+					pstsParam.add(new ParameterPrepareStatement(sqlpos, p));
+					sqlbuf.append('?').append(',');
+				}
+				sqlbuf.deleteCharAt(sqlbuf.length() - 1);
 			}
-			sqlbuf.deleteCharAt(sqlbuf.length() - 1);
 			return sqlbuf.toString();
-		} else // 集合为空
-		{
-			// do Nothing
-			return "";
 		}
 	}
 
@@ -336,28 +337,26 @@ public class SqlTemplateParser {
 			sqlbuf.append((char) prechar);
 			break;
 		case '{':
-			paramName = readParamerUtil('}');
+			paramName = readParamerUntil(new int[] { '}' });
 			break;
 		default:
 			sqlbuf.append((char) prechar).append((char) curChar);
 		}
 
 		// 已获取解析后的参数名
-		if(paramName!=null){
+		if (paramName != null) {
 			String tmp = (String) paramName.getValueFromMap(param);
-			if(tmp!=null)
-			{
+			if (tmp != null) {
 				sqlbuf.append(tmp);
 			}
 		}
 		return sqlbuf.toString();
 	}
 
-	private String readUntil(int c, boolean isparseParamName)
-			throws IOException, SqlParseException {
+	private String readUntil(int[] c, boolean isparseParamName) throws IOException, SqlParseException {
 		curChar = readandsavepre();
 		StringBuilder strbuf = new StringBuilder();
-		while (curChar != -1 && curChar != c) {
+		while (curChar != -1 && search(c, curChar) == -1) {
 
 			if (isparseParamName) {
 				strbuf.append(parseParameter());
@@ -370,8 +369,7 @@ public class SqlTemplateParser {
 		}
 		if (curChar == -1) {
 			throw new SqlParseException(strbuf.append(
-					" :position[" + (sqlpos - strbuf.length()) + "]\t expect '"
-							+ (char) c + "'").toString());
+					" :position[" + (sqlpos - strbuf.length()) + "]\t expect {" + Arrays.toString(c) + "}").toString());
 		} else {
 			return strbuf.toString();
 		}
@@ -391,41 +389,47 @@ public class SqlTemplateParser {
 		}
 	}
 
-	private ParameterEval readParamerUtil(int c) throws IOException,
-			SqlParseException {
+	private int search(int[] chars, int c) {
+		if (chars == null || chars.length == 0)
+			return -1;
+		for (int i = 0; i < chars.length; i++) {
+			if (c == chars[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private ParameterEval readParamerUntil(int[] chars) throws IOException, SqlParseException {
 		curChar = readandsavepre();
 		StringBuilder strbuf = new StringBuilder();
-		while (curChar != -1 && curChar != '|' && curChar != c) {
-			
+		while (curChar != -1 && curChar != '|' && search(chars, curChar) == -1) {
 			String tmp = parseParameter();
 			strbuf.append(tmp);
 			curChar = readandsavepre();
 		}
-		//去掉参数名的空格
+		// 去掉参数名的空格
 		String name = strbuf.toString().trim();
 		// 参数名为空
 		if (StringUtils.isEmpty(name)) {
-			throw new SqlParseException(" after \"" + (char) prechar
-					+ (char) curChar + "\", Parameter Name is null at position : "
-					+ sqlpos);
+			throw new SqlParseException(" after \"" + (char) prechar + (char) curChar
+					+ "\", Parameter Name is null at position : " + sqlpos);
 		}
 
 		if (curChar == -1) {
 			throw new SqlParseException(strbuf.append(
-					" :position[" + (sqlpos - strbuf.length()) + "]\t expect '"
-							+ (char) c + "'").toString());
+					" :position[" + (sqlpos - strbuf.length()) + "]\t expect {" + Arrays.toString(chars) + "}")
+					.toString());
 		} else if (curChar == '|') {
-			
+
 			// 读取filter内容，应该是一段可执行的js脚本
-			String jsCode = readUntil(c, true);
-			return new ParameterEval(name, jsCode,
-					ParamType.Array.equals(paramtype));
+			String jsCode = readUntil(chars, true);
+			return new ParameterEval(name, jsCode, ParamType.Array.equals(paramtype));
 		} else {
-			return new ParameterEval(name, null,
-					ParamType.Array.equals(paramtype));
+			return new ParameterEval(name, null, ParamType.Array.equals(paramtype));
 		}
 	}
-	
+
 	private int readandsavepre() throws IOException {
 		prechar = curChar;
 		curChar = in.read();

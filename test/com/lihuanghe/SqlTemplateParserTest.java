@@ -258,6 +258,17 @@ public class SqlTemplateParserTest {
 		
 	}
 	
+	@Test
+	public void testThreeMetaParameter()throws SqlParseException, IOException
+	{
+		String sql = "begin $[  p1   ? abc : def] $[  p2  ? abc : def] end";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("p1", "3");
+		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
+		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
+		String expect = "begin  abc   def end";
+		Assert.assertEquals(expect, pstsSql);
+	}
 	
 	//测试js执行性能 
 	@Test

@@ -1,24 +1,24 @@
+﻿
+## 一个简单的sql参数替换引擎，支持动态参数名，动态表名.
+## 主要用在自动报表工具（引擎）上。可以支持sql设置参数
 
-## һ���򵥵�sql�����滻���棬֧�ֶ�̬����������̬����.
-## ��Ҫ�����Զ��������ߣ����棩�ϡ�����֧��sql���ò���
-
-# �÷�: 
+# 用法: 
 
 
-1. ������������ƴ��
+1. 表名，参数名拼接
 
-> \#{pName#{pName}} �� ����pNameֵΪ5,���Ƚ�����#{pName5}��Ȼ����ȡpName5��ֵ�滻���������ڶ�̬������ select * from table_#{month} where id = ${id}.
+> \#{pName#{pName}} ： 参数pName值为5,首先解析成#{pName5}，然后再取pName5的值替换。比如用于动态表名： select * from table_#{month} where id = ${id}.
 
-2. �����滻
+2. 参数替换
 
-> ${parameter} �� �滻Ϊ ? ,ͬʱ���ö�Ӧλ�õĲ������󣬹�prepareStatementʹ��. �������Ϊ�գ����滻������Ŀǰֻ֧��String����
+> ${parameter} ： 替换为 ? ,同时设置对应位置的参数对象，供prepareStatement使用. 如果参数为空，则不替换。参数目前只支持String类型
 
-> ${parameter#{pName}} : �������pNameֵΪ5,�������Ƚ�����${parameter5},Ȼ����ȡֵ��
-�����һ������parameter5ֵΪ"hello world"�����滻Ϊ?,�Ҷ�Ӧλ�õĲ���ֵ����Ϊ"hello world"
+> ${parameter#{pName}} : 如果参数pName值为5,引擎首先解析成${parameter5},然后再取值。
+如果有一个参数parameter5值为"hello world"，则替换为?,且对应位置的参数值设置为"hello world"
 
-> @{arraysParameter} : ��������滻��������ݲ�Ϊ�գ��ҳ��ȴ���0 �����滻Ϊ?,?,? .���� sql��in , not in ��䣬�磺 where id in ( 'Nouse',@{Ids} ) .
+> @{arraysParameter} : 数组参数替换。如果数据不为空，且长度大于0 ，则替换为?,?,? .用于 sql的in , not in 语句，如： where id in ( 'Nouse',@{Ids} ) .
 
-> $[optParam: statment ] : ֧�ֿ�ѡ��䣬�������optParam��ֵ��Ϊ�գ������[]�ڵ�statment,�����Ƴ�����statment�����ڴ����ѡ������
+> $[optParam: statment ] : 支持可选语句，如果参数optParam，值不为空，则解析[]内的statment,否则移除整条statment。用于传入可选参数：
 
 ```sql
 select * from shops 
@@ -29,7 +29,7 @@ and  shop_name = ${shopName}
 and status = 1 
 ```
 
-> @[optArrays: statment ] : ��$[]������ͬ��������Ϊ���飬���߼������͡�����optArrays��Ϊ�գ��ҳ��ȴ���0��ִ��statment��
+> @[optArrays: statment ] : 与$[]含义相同，但参数为数组，或者集合类型。仅当optArrays不为空，且长度大于0才执行statment。
 
 ```sql
 select * from shops 
@@ -41,9 +41,11 @@ and beginDate = ${datetime}
 and status = 1
 ```
 
-3. Ŀǰ��������
+> $[optParam ? statementTrue: statementFalse ] :  支持三元表达式，仅当optParam存在，并且optParam不为空时，返回True.
 
-> ����֧�ֵ���js���д�������'|'�ֿ���ǰ���ǲ������������js���롣 js�����ѡ�� �磺
+3. 支持js处理参数。
+
+> 参数支持调用js进行处理，以'|'分开，前边是参数名，后边是js代码。 js代码可选。 如：
 
 ```
 ${abc|DateFormat.format(abc,'yyyy-MM-dd')} 
