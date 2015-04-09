@@ -282,10 +282,12 @@ public class SqlTemplateParser {
 			sqlbuf.append(statment(pstsParam));
 			curChar = readandsavepre();
 		}
+		
+		String str = sqlbuf.toString();
 		if (curChar == -1) {
-			throw new SqlParseException("\texpect '" + (char) until + "'");
+			throw new SqlParseException("\texpect char '" + (char) until + "' after statement : " +str);
 		}
-		return sqlbuf.toString();
+		return str;
 	}
 
 	// 处理必选参数
