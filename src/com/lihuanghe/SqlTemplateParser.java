@@ -189,6 +189,7 @@ public class SqlTemplateParser {
 		case '$':
 		case '#':
 		case ':':
+		case '?':
 		case '{':
 		case '}':
 		case '[':
