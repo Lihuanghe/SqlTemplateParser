@@ -248,7 +248,7 @@ public class SqlTemplateParser {
 
 	protected String optionalParameter(List<ParameterPrepareStatement> pstsParam) throws IOException, SqlParseException {
 		// 获取参数
-		ParameterEval paramName = readParamerUntil(new int[] { ':', '?' });
+		ParameterEval paramName = readParamerUntil(new char[] { ':', '?' });
 		if (curChar == ':') {
 			if (isEmpty(paramName)) {
 				statmentUntil(']', new ArrayList());
@@ -295,7 +295,7 @@ public class SqlTemplateParser {
 	protected String requiredParameter(List<ParameterPrepareStatement> pstsParam) throws IOException, SqlParseException {
 
 		// 获取参数名
-		ParameterEval paramName = readParamerUntil(new int[] { '}' });
+		ParameterEval paramName = readParamerUntil(new char[] { '}' });
 		return addpstsParam(paramName, pstsParam);
 	}
 
@@ -340,7 +340,7 @@ public class SqlTemplateParser {
 			sqlbuf.append((char) prechar);
 			break;
 		case '{':
-			paramName = readParamerUntil(new int[] { '}' });
+			paramName = readParamerUntil(new char[] { '}' });
 			break;
 		default:
 			sqlbuf.append((char) prechar).append((char) curChar);
@@ -356,7 +356,7 @@ public class SqlTemplateParser {
 		return sqlbuf.toString();
 	}
 
-	private String readUntil(int[] c, boolean isparseParamName) throws IOException, SqlParseException {
+	private String readUntil(char[] c, boolean isparseParamName) throws IOException, SqlParseException {
 		curChar = readandsavepre();
 		StringBuilder strbuf = new StringBuilder();
 		while (curChar != -1 && search(c, curChar) == -1) {
@@ -392,7 +392,7 @@ public class SqlTemplateParser {
 		}
 	}
 
-	private int search(int[] chars, int c) {
+	private int search(char[] chars, int c) {
 		if (chars == null || chars.length == 0)
 			return -1;
 		for (int i = 0; i < chars.length; i++) {
@@ -403,7 +403,7 @@ public class SqlTemplateParser {
 		return -1;
 	}
 
-	private ParameterEval readParamerUntil(int[] chars) throws IOException, SqlParseException {
+	private ParameterEval readParamerUntil(char[] chars) throws IOException, SqlParseException {
 		curChar = readandsavepre();
 		StringBuilder strbuf = new StringBuilder();
 		while (curChar != -1 && curChar != '|' && search(chars, curChar) == -1) {
