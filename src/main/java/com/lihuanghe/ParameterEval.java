@@ -10,19 +10,9 @@ import javax.script.ScriptException;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 
-import java.util.Map;
-
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
-
 public class ParameterEval {
 	private boolean isArray = false;
-	private String paramName;
+	private String[] paramName;
 	private String jsCode ;
 	private static final ScriptEngineManager manager = new ScriptEngineManager();
 	private static final DateFormatUtils dataformat = new DateFormatUtils();
@@ -36,7 +26,7 @@ public class ParameterEval {
 	public ParameterEval(String name,String code,boolean isArray)
 	{
 		this.isArray = isArray;
-		this.paramName = name;
+		this.paramName = name.split("\\.");
 		this.jsCode = code;
 	}
 	public boolean isArray() {
@@ -46,7 +36,7 @@ public class ParameterEval {
 	private Object executeJS(Map map) throws ScriptException
 	{
 		Bindings bd = engine.createBindings();
-		bd.put(paramName,map.get(paramName));
+		bd.put(paramName[paramName.length-1],getparaValue(map));
 		bd.put("DateFormat",dataformat);
 		bd.put("DateUtils",dateutils);
 		Object obj = engine.eval(jsCode,bd);
@@ -64,6 +54,32 @@ public class ParameterEval {
 				return null;
 			}
 		}
-		return map.get(paramName);
+		return getparaValue(map);
+	}
+	
+	private Object getparaValue(Map map){
+		if(paramName.length == 1){
+			return map.get(paramName[0]);
+		}else{
+			Map value = map;
+			for(int i =0;i<paramName.length;i++){
+				Object item = value.get(paramName[i]);
+				if(item == null)  return "";
+				
+				if( i == paramName.length-1){
+					return value.get(paramName[i]);
+				}else{
+					if(item instanceof Map){
+						value = (Map)item;
+					}else{
+						//TODO 不处理不是Map里的对象，可能是一个普通的Bean,要通过反射获取字段值
+						return null;
+					}
+				}
+			}
+			//never here
+			return null;
+			
+		}
 	}
 }

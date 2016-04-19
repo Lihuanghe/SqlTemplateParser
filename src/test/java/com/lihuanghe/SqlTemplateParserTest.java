@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,13 +38,15 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testall() throws SqlParseException, IOException
 	{
-		String sql = "begin ${p1},@{p2},p#{p1},$[p1: midle1:${p1}],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end$";
+		String sql = "begin #{   m1.p3   } ${p1},@{p2},p#{p1},$[p1: midle1:${p1}],\n $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ end$";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("p1", "1");
+		map.put("p3", "sdf");
 		map.put("p2", new String[]{"2","3","4"});
+		map.put("m1", new HashMap(map));
 		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
 		String pstsSql = SqlTemplateParser.parseString(sql, map, param);
-		String expect = "begin ?,?,?,?,p1, midle1:?,\n ,midle3:?,?,?,,${,\\a,\\ end$";
+		String expect = "begin sdf ?,?,?,?,p1, midle1:?,\n ,midle3:?,?,?,,${,\\a,\\ end$";
 		Assert.assertEquals(expect, pstsSql);
 		Assert.assertEquals(8, param.size());
 		Assert.assertEquals(Arrays.toString(new String[]{"1" ,"2" ,"3" ,"4" ,"1" ,"2" ,"3" ,"4" }), Arrays.toString(param.toArray()));
@@ -274,18 +275,18 @@ public class SqlTemplateParserTest {
 	@Test
 	public void testJsperf() throws SqlParseException, IOException
 	{
-		Date st = new Date();
 		int i = 0;
 		Date d = new Date();
-		String sql = "begin ${abc|DateFormat.format(abc,'yyyy-MM-dd')} #{abc|DateFormat.format(abc,'yyyy-MM-dd')}end ";
+		String sql = "begin ${p1,@{p2},p#{p1},$[p1: midle1:${p1}], $[p5: midle2:${p1}],@[p2:midle3:@{p2}],@[p5:midle4:@{p2}],\\${,\\a,\\\\ $abc #XY end";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("abc", d);
 		List<ParameterPrepareStatement> param = new ArrayList<ParameterPrepareStatement>();
-		for(;i< 1000;i++){
+		int cnt = 100000;
+		long st = System.currentTimeMillis();
+		for(;i< cnt;i++){
 			SqlTemplateParser.parseString(sql, map, param);
 		};
-		Date ed = new Date();
-		System.out.println(ed.getTime() - st.getTime());
-		Assert.assertTrue("js执行过慢，单次执行大于10ms",(ed.getTime() - st.getTime())<10000);
+		long ed = System.currentTimeMillis();
+		System.out.println("totle:"+(double)(ed - st)+"ms ; per "+(double)(ed - st)/cnt +"ms");
 	}
 }
