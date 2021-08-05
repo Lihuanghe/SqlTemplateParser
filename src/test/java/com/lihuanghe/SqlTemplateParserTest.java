@@ -220,7 +220,7 @@ public class SqlTemplateParserTest {
 	public void testJscode() throws SqlParseException, IOException
 	{
 		Date d = new Date();
-		String sql = "begin ${b3|[]} @[b3|[]: abc ] ${abc|abc&&DateFormat.format(abc,'yyyy-MM-dd')} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} #{beginDate|DateFormat.format(DateUtils.addMonths(DateUtils.parseDate(beginDate, ['yyyy-MM-dd']),-1),'yyyyMM')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
+		String sql = "begin ${b3|[]} @[b3|[]: abc ] ${abc|if(abc) {\nabc?DateFormat.format(abc,'yyyy-MM-dd'):'error null';\n\\}} ${abcd|abcd&&DateFormat.format(abcd,'yyyy-MM-dd')} (@{b3|['hello'].concat(b3.join('*'))}) #{abc|DateFormat.format(abc,'yyyy-MM-dd')} #{beginDate|DateFormat.format(DateUtils.addMonths(DateUtils.parseDate(beginDate, ['yyyy-MM-dd']),-1),'yyyyMM')} (${b2|b2.addAll(['5','6','7']);b2}) end ";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("beginDate","2015-03-23");
 		map.put("abc", d);

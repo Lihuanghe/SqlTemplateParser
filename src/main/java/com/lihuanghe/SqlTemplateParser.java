@@ -365,7 +365,7 @@ public class SqlTemplateParser {
 				strbuf.append(parseParameter());
 			} else {
 				// 对于要丢弃的字符，不再解析
-				strbuf.append((char) curChar);
+				strbuf.append('\\'==curChar ?escape():(char) curChar);
 			}
 
 			curChar = readandsavepre();
@@ -426,7 +426,8 @@ public class SqlTemplateParser {
 		} else if (curChar == '|') {
 
 			// 读取filter内容，应该是一段可执行的js脚本
-			String jsCode = readUntil(chars, true);
+			String jsCode = readUntil(chars, false);
+			
 			return new ParameterEval(name, jsCode, ParamType.Array.equals(paramtype));
 		} else {
 			return new ParameterEval(name, null, ParamType.Array.equals(paramtype));
